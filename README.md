@@ -77,12 +77,10 @@ KPOST (`10.01 - Valid VPD Test`) and `libPlatformABSLayer.so` (`GetAllVpdData`) 
 | `0x0674` | `4` | **XOR Checksum** | Big-endian `uint32` XOR of `0x0000..0x0673` |
 
 ---
+## 4. Flashing Workflow
 
-## 4. Flashing & Bad-Block Handling Notes
-
-* **Bad Blocks on `/dev/mtd4`:** `/dev/mtd4` is `384 KiB` (three `128 KiB` erase blocks). On many units, block `0` (`0x00000000`) is factory-marked bad, leaving `256 KiB` (`0x20000` + `0x40000`) of usable space. Always back up with `nanddump -o -b` (which skips bad blocks cleanly) and write with `nandwrite -p`.
-* **Expected `nandwrite` End-of-Partition Message:** Writing a `256 KiB` (`0x40000`) VPD image to a `384 KiB` partition with 1 bad block writes all `256 KiB` into blocks `0x20000` and `0x40000` and prints `Data was only partially written due to error: Success` when it hits the physical end of the partition. Always verify the written partition with `nanddump -o -b` + `md5sum`.
-* **Do Not Touch `HWCW` (`/dev/mtd7`) Unless Restoring a Valid Calibration Table:** KPOST `10.02 - Valid Cal Tables Test` validates `/dev/mtd7`.
+* **Always Back Up First:** Dump `/dev/mtd4` (`VPD`) before erasing or modifying it.
+* **Leave `HWCW` (`/dev/mtd7`) Untouched:** KPOST `10.02 - Valid Cal Tables Test` validates `/dev/mtd7`.
 
 ### Step-by-Step Workflow
 ```sh
