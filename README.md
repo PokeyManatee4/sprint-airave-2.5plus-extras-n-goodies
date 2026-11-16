@@ -126,7 +126,7 @@ Run both scripts on your PC (requires Python 3.10+, standard library only):
 python3 kernel_mtd_unlock.py kern1_backup.bin -o kern1_unlock.bin
 
 # 2. Patch ONLY fng_url in your VPD backup and recalculate the 32-bit XOR checksum
-python3 vpd_fng_changer.py vpd_backup.bin ://example.com -o vpd_new.bin
+python3 vpd_fng_changer.py vpd_backup.bin segw.femto.example.com -o vpd_new.bin
 ```
 
 ---
@@ -170,7 +170,7 @@ python3 vpd_fng_changer.py vpd_backup.bin ://example.com -o vpd_new.bin
    md5sum /tmp/vpd_new.bin /tmp/vpd_verify.bin
 
    # Sync U-Boot environment variable and reboot
-   fw_setenv fng_url ://example.com
+   fw_setenv fng_url segw.femto.example.com
    rm -f /tmp/vpd_new.bin /tmp/vpd_verify.bin
    sync
    reboot
