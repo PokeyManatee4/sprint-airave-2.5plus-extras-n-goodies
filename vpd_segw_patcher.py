@@ -25,7 +25,8 @@ def compute_vpd_xor(buf: bytes) -> int:
 
 
 def read_cstr(buf: bytes, off: int, max_len: int) -> str:
-    return buf[off : off + max_len].split(b"\x00", 1).decode("ascii", errors="replace")
+    head, _, _ = buf[off : off + max_len].partition(b"\x00")
+    return head.decode("ascii", errors="replace")
 
 
 def main() -> None:
@@ -67,7 +68,7 @@ def main() -> None:
     target = args.fng_url.strip()
     if "://" in target or "/" in target:
         raise SystemExit(
-            f"Error: '{target}' contains a URI scheme or path. Pass a bare hostname or IP only (e.g., ://example.com), or SecBrkApplication will crash."
+            f"Error: '{target}' contains a URI scheme or path. Pass a bare hostname or IP only (e.g., segw.example.com), or SecBrkApplication will crash."
         )
 
     encoded_url = target.encode("ascii")
