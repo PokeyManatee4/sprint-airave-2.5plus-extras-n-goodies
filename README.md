@@ -1,6 +1,6 @@
 # Sprint Airave 2.5+ (`PSC9131E`) — VPD, Kernel MTD Unlock & Flash Guide
 
-> **⚠️ Hardware Compatibility Notice:** **THIS HAS BEEN TESTED ON THE AIRAVE 2.5+ (PLUS) ONLY (`cdmaFAP3`, Freescale `PSC9131E` PowerPC `e500v2`), NOT the original/regular Sprint Airave 2.5 models.** Original 2.5 units use a completely different hardware architecture, bootloader, and flash layout—do **not** run these scripts or flash these images on a non-Plus Airave 2.5.
+> **⚠️ Hardware Notice:** **THIS HAS BEEN TESTED ON THE AIRAVE 2.5+ (PLUS) ONLY (`cdmaFAP3`, Freescale `PSC9131E`), NOT the regular/original Sprint Airave 2.5 models.** Original 2.5 units likely have different flash/VPD layouts and have not been tested—use this guide and tooling on the **2.5+ (Plus)** only.
 
 > **Prerequisite / Precursor Repository:** Before following this guide, you must first obtain root shell access and extract your unit's SeGW/ACS credentials using **[`dondaplayer1/Sprint-Airave-Airvana-2.5-Root`](https://github.com)** (follow the **Airave 2.5+ (`2-5plus`)** guide).
 
