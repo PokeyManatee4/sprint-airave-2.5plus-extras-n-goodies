@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Airvana Airave 2.5+ (PSC9131E) VPD fng_url (Primary Security Gateway) Changer.
-Updates only fng_url at offset 0x0056 and recalculates the 32-bit XOR checksum.
+Updates only fng_url at offset 0x0056 (bare hostname/IP only, max 63 ASCII chars)
+and recalculates the 32-bit XOR checksum.
 """
 import argparse
 import struct
@@ -9,7 +10,7 @@ from pathlib import Path
 
 VPD_STRUCT_SIZE = 0x678  # 1,656 bytes
 FNG_URL_OFFSET = 0x0056
-FNG_URL_MAX_LEN = 64     # 63 ASCII chars + null terminator
+FNG_URL_MAX_LEN = 64     # 63 ASCII chars + 1 null terminator (0x0056..0x0095)
 CHECKSUM_OFFSET = 0x0674
 
 
@@ -32,7 +33,11 @@ def main() -> None:
         description="Change only fng_url in an Airave 2.5+ VPD dump and recalculate its XOR checksum."
     )
     parser.add_argument("input", type=Path, help="Input VPD dump (1656B struct or 256KiB/384KiB flash dump)")
-    parser.add_argument("fng_url", nargs="?", help="New Primary Security Gateway hostname (omit to inspect/verify only)")
+    parser.add_argument(
+        "fng_url",
+        nargs="?",
+        help="New Primary Security Gateway bare hostname or IP (max 63 chars, no http:// or https://)",
+    )
     parser.add_argument("-o", "--output", type=Path, help="Output patched VPD file")
     args = parser.parse_args()
 
@@ -59,9 +64,18 @@ def main() -> None:
     if not args.output:
         raise SystemExit("Error: -o / --output is required when setting a new fng_url.")
 
-    encoded_url = args.fng_url.encode("ascii")
+    target = args.fng_url.strip()
+    if "://" in target or "/" in target:
+        raise SystemExit(
+            f"Error: '{target}' contains a URI scheme or path. Pass a bare hostname or IP only (e.g., ://example.com), or SecBrkApplication will crash."
+        )
+
+    encoded_url = target.encode("ascii")
     if len(encoded_url) >= FNG_URL_MAX_LEN:
-        raise SystemExit(f"Error: fng_url must be <= {FNG_URL_MAX_LEN - 1} ASCII characters.")
+        raise SystemExit(
+            f"Error: fng_url is {len(encoded_url)} chars, exceeding the 63-char hardware limit "
+            f"(64-byte slot 0x0056..0x0095 including null terminator before fng_url_sec at 0x0096)."
+        )
 
     raw[FNG_URL_OFFSET : FNG_URL_OFFSET + FNG_URL_MAX_LEN] = b"\x00" * FNG_URL_MAX_LEN
     raw[FNG_URL_OFFSET : FNG_URL_OFFSET + len(encoded_url)] = encoded_url
