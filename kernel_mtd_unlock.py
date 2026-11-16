@@ -89,14 +89,15 @@ def main() -> None:
 
     raw = args.input.read_bytes()
     header_fields, images = parse_multifile_uimage(raw)
-    print(f"Loaded valid multi-file uImage: {len(images)} sub-images (Image 0 = {len(images)} bytes)")
+    img0, *rest = images
+    print(f"Loaded valid multi-file uImage: {len(images)} sub-images (Image 0 = {len(img0)} bytes)")
 
-    gz_offset = images.find(b"\x1f\x8b\x08")
-    if gz_offset < 0:
+    head, sep, tail = img0.partition(b"\x1f\x8b\x08")
+    if not sep:
         raise SystemExit("Error: Could not find gzip header inside Image 0.")
 
-    prefix = images[:gz_offset]
-    vmlinux = bytearray(gzip.decompress(images[gz_offset:]))
+    prefix = head
+    vmlinux = bytearray(gzip.decompress(sep + tail))
     print(f"Decompressed vmlinux: {len(vmlinux)} bytes")
 
     matches = [i for i in range(len(vmlinux)) if vmlinux[i : i + 10] == b"read-only\x00"]
@@ -107,7 +108,7 @@ def main() -> None:
         vmlinux[off : off + 10] = b"read-onlX\x00"
     print(f"Patched 'read-only\\x00' -> 'read-onlX\\x00' at offsets: {[hex(m) for m in matches]}")
 
-    images = prefix + gzip.compress(bytes(vmlinux), compresslevel=9)
+    images = [prefix + gzip.compress(bytes(vmlinux), compresslevel=9), *rest]
     out_uimage = build_multifile_uimage(header_fields, images)
     args.output.write_bytes(out_uimage)
     print(f"Saved patched uImage to {args.output} ({len(out_uimage)} bytes)")
