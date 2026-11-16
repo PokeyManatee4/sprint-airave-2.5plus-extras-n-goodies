@@ -183,3 +183,12 @@ python3 vpd_fng_changer.py vpd_backup.bin segw.femto.example.com -o vpd_new.bin
    grep "Primary Security Gateway" /conf_files/logfiles/Startup.log
    ```
    *(Optional: You can restore your untouched `kern1_backup.bin` onto `/dev/mtd1` afterward if you want `Kern1` back to 100% stock.)*
+   
+---
+
+## 5. Next Steps (Postcursor)
+
+Once `fng_url` is updated and verified on your Airave 2.5+, the device's IPsec stack will resolve your custom Security Gateway domain on boot (`fng_url` only sets the target destination host—make sure it is a valid domain resolving to a reachable IP address with IPsec running on that IP, or the device will not talk IPsec; tunnel authentication, TR-069 ACS provisioning, and radio configuration are handled by your core network).
+
+* **Bring Up Your Private CDMA Core (`1xBTS`):** Follow the official **[1xBTS Femtocell Setup Guide](https://1xbts.org)** using the **`airave-25plus`** profile and the six device credentials extracted via **[`dondaplayer1/Sprint-Airave-Airvana-2.5-Root`](https://github.com)** (`feid`, `ike_group_key`, `eap_identity`, `eap_password`, `acs.username`, `acs.password`).
+* **Bootstrap DNS & IPsec:** Make sure your custom `fng_url` is a valid domain resolving to your 1xBTS host's IP address, and that the IPsec Security Gateway (`femto-segw`) is running and reachable on that IP (UDP ports `500` and `4500`).
