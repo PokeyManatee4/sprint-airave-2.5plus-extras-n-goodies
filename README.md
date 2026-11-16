@@ -8,6 +8,11 @@
 
 Technical findings, NAND partition maps, checksum details, and standalone Python tooling for unlocking `/dev/mtd4` (`VPD`) and updating the Primary Security Gateway (`fng_url`) on the **Sprint Airave 2.5+ (`cdmaFAP3`, Freescale `PSC9131E` PowerPC `e500v2`, tested on firmware `6.5.01.010` / hardware `750721.00.03`)**.
 
+## Why Patch `fng_url` in VPD Instead of Using DNS Overrides?
+
+By default, the Airave 2.5+ queries `segw.femto.sprint.net` (which no longer resolves on public DNS). While you can intercept `*.femto.sprint.net` on a local LAN router or `dnsmasq` instance, patching `fng_url` directly inside the VPD partition makes the femtocell portable—you can plug it into any network using standard public DNS (such as Cloudflare) without needing custom local DNS overrides on every router.
+
+
 ---
 
 ## 1. Hardware & NAND Partition Layout (`AirvNand`)
